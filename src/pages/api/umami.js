@@ -18,7 +18,7 @@ export default async function handler(req, res) {
       return res.status(405).json({ error: 'Method not allowed' });
     }
 
-    const token = process.env.UMAMI_TOKEN; // 从环境变量中获取 token
+    const token = process.env.API_TOKEN; // 从环境变量中获取 token
     const umiId = websiteId || 'a4e8c20f-d2e8-4b10-bdf5-2d52c389fd45';
     const umiTime = Date.now();
 
