@@ -1,7 +1,7 @@
 // api/umami.js
 export default async function handler(req, res) {
   // 设置 CORS 头
-  res.setHeader('Access-Control-Allow-Origin', 'https://www.xn--5brr03o.top/');
+  res.setHeader('Access-Control-Allow-Origin', 'https://www.xn--5brr03o.top/'); // 替换为你的域名
   res.setHeader('Access-Control-Allow-Methods', 'GET');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
 
