@@ -1,7 +1,7 @@
 // api/umami-proxy.js
 export default async function handler(req, res) {
   // 设置 CORS 头
-  res.setHeader('Access-Control-Allow-Origin', 'https://www.xn--5brr03o.top/'); 
+  res.setHeader('Access-Control-Allow-Origin', '*'); 
   res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
 
