@@ -7,11 +7,11 @@ export default async function handler(req, res) {
       return res.status(405).json({ error: 'Method not allowed' });
     }
 
-    const token = process.env.API_TOKEN; // 从环境变量中获取 token
+    const token = process.env.UMAMI_TOKEN; // 确保环境变量名称正确
     const umiId = websiteId || 'a4e8c20f-d2e8-4b10-bdf5-2d52c389fd45';
     const umiTime = Date.now();
 
-    const umiUrl = `https://umami.xn--5brr03o.top/api/websites/${umiId}/stats?startAt=0000000000&endAt=${umiTime}`;
+    const umiUrl = `https://umami.xn--5brr03o.top/api/websites/${umiId}/stats?startAt=0&endAt=${umiTime}`;
 
     const response = await fetch(umiUrl, {
       method: 'GET',
