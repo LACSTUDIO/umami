@@ -51,7 +51,7 @@ if (forceSSL) {
 const trackerHeaders = [
   {
     key: 'Access-Control-Allow-Origin',
-    value: '*',
+    value: 'https://www.xn--5brr03o.top/',
   },
   {
     key: 'Cache-Control',
