@@ -3,7 +3,7 @@ addEventListener('fetch', event => {
 });
 
 const API_BASE_URL = 'https://umami.xn--5brr03o.top';
-const token = process.env.API_TOKEN;
+const TOKEN = process.env.API_TOKEN;
 const WEBSITE_ID = '291d8c16-1fd0-4c8c-9b6b-a902b90f31fe';
 const CACHE_KEY = 'umami_cache';
 const CACHE_TIME = 600; // Cache time in seconds
@@ -59,7 +59,7 @@ async function handleRequest(event) {
     headers: {
       'Content-Type': 'application/json',
       'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+      'Access-Control-Allow-Methods': 'GET, OPTIONS',
       'Access-Control-Allow-Headers': 'Content-Type, Authorization'
     }
   });
