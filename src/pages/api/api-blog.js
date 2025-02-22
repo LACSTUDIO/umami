@@ -1,70 +1,44 @@
-addEventListener('fetch', event => {
-  event.respondWith(handleRequest(event));
-});
+// api/umami-proxy.js
+export default async function handler(req, res) {
+  // 设置 CORS 头
+  res.setHeader('Access-Control-Allow-Origin', '*'); 
+  res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
 
-const API_BASE_URL = 'https://umami.xn--5brr03o.top/';
-const TOKEN = 'ybp8MzEqOpzZ444D2Odu3fY1N1e0Vgj1qFgO3RDgnlxl2++g3moLHXWah8xn/nIBPpWi8Tx4Z+Qrp0XM0bR2hj4cbQm+sewRLbyXBvuuhMKnKsep3zyDp/KQvJXwVCh0/Gyadu9l6k5aLPHiDZVELYk5ARmZXFUWKa8n1sKf5XA/XiHoWpW7+i8kAaTZ02IIvoKlz99Pbnb+kYq4ZI9J6bMz8cVPu67xCn4KBCoHB6Z8enu9uOgu/XkIrdokzcXyFpWa3EGTrZTYPdyzKh/6SAHUouqLA6xqYcxcycXH0RdFUw4NkPVLPs4z+WL9ewEWUiKJl/6ADfZ/8n7O3zatLxnvEa3WcNYfvQ==';
-const WEBSITE_ID = '291d8c16-1fd0-4c8c-9b6b-a902b90f31fe';
-const CACHE_KEY = 'umami_cache';
-const CACHE_TIME = 600; // Cache time in seconds
-
-async function fetchUmamiData(startAt, endAt) {
-  const url = `${API_BASE_URL}/api/websites/${WEBSITE_ID}/stats?startAt=${startAt}&endAt=${endAt}`;
-  const response = await fetch(url, {
-    headers: {
-      'Authorization': `Bearer ${TOKEN}`,
-      'Content-Type': 'application/json'
-    }
-  });
-
-  if (!response.ok) {
-    console.error(`Error fetching data: ${response.statusText}`);
-    return null;
+  // 如果是 OPTIONS 请求，直接返回
+  if (req.method === 'OPTIONS') {
+    res.status(200).end();
+    return;
   }
 
-  return response.json();
-}
+  try {
+    const { query: { websiteId }, method } = req;
 
-async function handleRequest(event) {
-  const cache = await caches.open(CACHE_KEY);
-  const cachedResponse = await cache.match(event.request);
-
-  if (cachedResponse) {
-    return cachedResponse;
-  }
-
-  const now = Date.now();
-  const todayStart = new Date(now).setHours(0, 0, 0, 0);
-  const yesterdayStart = new Date(now - 86400000).setHours(0, 0, 0, 0);
-  const lastMonthStart = new Date(now).setMonth(new Date(now).getMonth() - 1);
-  const lastYearStart = new Date(now).setFullYear(new Date(now).getFullYear() - 1);
-
-  const [todayData, yesterdayData, lastMonthData, lastYearData] = await Promise.all([
-    fetchUmamiData(todayStart, now),
-    fetchUmamiData(yesterdayStart, todayStart),
-    fetchUmamiData(lastMonthStart, now),
-    fetchUmamiData(lastYearStart, now)
-  ]);
-
-  const responseData = {
-    today_uv: todayData?.visitors?.value ?? null,
-    today_pv: todayData?.pageviews?.value ?? null,
-    yesterday_uv: yesterdayData?.visitors?.value ?? null,
-    yesterday_pv: yesterdayData?.pageviews?.value ?? null,
-    last_month_pv: lastMonthData?.pageviews?.value ?? null,
-    last_year_pv: lastYearData?.pageviews?.value ?? null
-  };
-
-  const jsonResponse = new Response(JSON.stringify(responseData), {
-    headers: {
-      'Content-Type': 'application/json',
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
-      'Access-Control-Allow-Headers': 'Content-Type, Authorization'
+    if (method !== 'GET') {
+      return res.status(405).json({ error: 'Method not allowed' });
     }
-  });
 
-  event.waitUntil(cache.put(event.request, jsonResponse.clone()));
+    const token = process.env.API_TOKEN; // 从环境变量中获取 token
+    const umiId = websiteId || '291d8c16-1fd0-4c8c-9b6b-a902b90f31fe';
+    const umiTime = Date.now();
 
-  return jsonResponse;
+    const umiUrl = `https://umami.xn--5brr03o.top/api/websites/${umiId}/stats?startAt=0&endAt=${umiTime}`;
+
+    const response = await fetch(umiUrl, {
+      method: 'GET',
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const data = await response.json();
+    res.status(200).json(data);
+  } catch (error) {
+    res.status(500).json({ error: `API Error: ${error.message}` });
+  }
 }
